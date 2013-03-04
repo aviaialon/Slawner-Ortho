@@ -1,0 +1,40 @@
+10
+
+dir
+107
+svn+ssh://avi@192.168.2.21/var/www/svn-repositories/platform/platform/trunk/admin/mvc/modules/menu_manager/assets
+svn+ssh://avi@192.168.2.21/var/www/svn-repositories/platform
+
+
+
+2012-05-04T15:37:16.713308Z
+1
+avi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1d002b39-cfa2-4865-9edd-a1a93c63ba5f
+
+css
+dir
+
+img
+dir
+
+js
+dir
+
+views
+dir
+

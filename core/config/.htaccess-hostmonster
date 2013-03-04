@@ -1,0 +1,250 @@
+# Use PHP5.3 Single php.ini as default
+AddHandler application/x-httpd-php53s .php .html .htm
+
+# OPTIONS
+# For security reasons, Option followsymlinks cannot be overridden.
+#        Options +FollowSymLinks -Multiviews
+        Options +SymLinksIfOwnerMatch -Multiviews
+
+
+# disable directory browsing
+# For security reasons, Option all cannot be overridden.
+#        Options All -Indexes
+        Options ExecCGI Includes IncludesNOEXEC SymLinksIfOwnerMatch -Indexes
+
+
+# DEFAULT SERVER CONFIGURATIONS
+        ServerSignature Off
+        DefaultLanguage en-US
+        SetEnv TZ America/Indianapolis
+        SetEnv SERVER_ADMIN aviaialon@gmail.com
+        AddDefaultCharset UTF-8
+
+# TYPE-CASTING
+        AddType video/x-flv .flv
+        AddType application/x-shockwave-flash .swf
+        AddType image/x-icon .ico
+        AddType application/x-httpd-php .html .htm
+        AddType application/x-httpd-php .objectCache
+        AddType application/vnd.adobe.air-application-installer-package+zip .air
+
+# ERROR DOCUMENTS
+        ErrorDocument 404 /core/http-errors/404.php
+        ErrorDocument 400 /core/http-errors/error.php
+        ErrorDocument 401 /core/http-errors/error.php
+        ErrorDocument 403 /core/http-errors/error.php
+        ErrorDocument 405 /core/http-errors/error.php
+        ErrorDocument 406 /core/http-errors/error.php
+        ErrorDocument 409 /core/http-errors/error.php
+        ErrorDocument 413 /core/http-errors/error.php
+        ErrorDocument 414 /core/http-errors/error.php
+        ErrorDocument 500 /core/http-errors/error.php
+        ErrorDocument 501 /core/http-errors/error.php
+
+
+# DIRECTORY INDEX
+        DirectoryIndex index.php index.htm index.html
+
+# INI SET
+# File modified on Sun Apr 29 21:05:02 2012 by server
+# For security reasons, mod_php is not used on this server. Use a php.ini file for php directives
+#         php_value register_globals on
+
+# For security reasons, mod_php is not used on this server. Use a php.ini file for php directives
+#         php_value auto_prepend_file /var/www/www.demenagementregent.com/config/config.php
+
+# File modified on Sun Apr 29 21:05:03 2012 by server
+# For security reasons, mod_php is not used on this server. Use a php.ini file for php directives
+#         php_flag output_buffering on
+
+# ENVIRONMENT VARIABLES
+        SetEnv APPLICATION_ENV development
+        SetEnv REQ_URI %{HTTP_HOST}
+        SetEnv REQUEST_FILENAME %{REQUEST_FILENAME}
+        SetEnv REQUEST_URI %{REQUEST_URI}
+
+
+# DEFAULT CHARSET AND LANGUAGE
+        <FilesMatch "\.(htm|html|css|js|php|cfm)$">
+                AddDefaultCharset UTF-8
+                DefaultLanguage en-US
+        </FilesMatch>
+
+# SECURE OBJECT CACHE FILES
+        <FilesMatch "\.(objectCache)$">
+                order allow,deny
+                deny from all
+        </FilesMatch>
+
+# SECURE THE .HTACCESS FILE
+        <Files .htaccess>
+                order allow,deny
+                deny from all
+        </Files>
+
+# SECURE THE .ini FILE
+        <Files .ini>
+                order allow,deny
+                deny from all
+        </Files>
+
+
+
+#----------------------
+# STATIC FILE CACHE
+#----------------------
+<IfModule mod_headers.c>
+        Header unset Pragma
+        FileETag None
+        Header unset ETag
+
+        #cache images/pdf docs for 10 days
+        <FilesMatch "\.(ico|pdf|jpg|jpeg|png|gif)$">
+                Header set Cache-Control "max-age=864000, public, must-revalidate"
+                Header unset Last-Modified
+        </FilesMatch>
+
+        #cache html/htm/xml/txt diles for 2 days
+        <FilesMatch "\.(html|htm|xml|txt|xsl)$">
+                Header set Cache-Control "max-age=7200, must-revalidate"
+        </FilesMatch>
+</IfModule>
+
+#----------------------
+# STATIC FILE COMPRESSION
+#----------------------
+#<IfModule mod_deflate.c>
+        <FilesMatch "\.(js|css)$">
+                SetOutputFilter DEFLATE
+        </FilesMatch>
+#</IfModule>
+
+#----------------------
+# REWITE ENGINE
+#----------------------
+
+RewriteEngine On
+RewriteBase /
+
+<IfModule mod_rewrite.c>
+ # Blocking request based on User-Agent Header
+        SetEnvIfNoCase ^User-Agent$ .*(craftbot|download|extract|stripper|sucker|ninja|clshttp|webspider|leacher|collector|grabber|webpictures) HTTP_SAFE_BADBOT
+        SetEnvIfNoCase ^User-Agent$ .*(libwww-perl|aesop_com_spiderman) HTTP_SAFE_BADBOT
+        Deny from env=HTTP_SAFE_BADBOT
+
+# Remove trailing slash
+# e.g. example.com/foo/ will redirect to example.com/foo
+#       - Skip all rewrites if the file or folder already exists
+        RewriteCond %{REQUEST_FILENAME} -f [OR]
+        RewriteCond %{REQUEST_FILENAME} -d
+        RewriteRule .* - [L]
+
+#       - Otherwise, (if its not the admin section) clean the trailing slash
+        RewriteCond %{REQUEST_URI} !^(sp|fr|en)?/admin(/)?.*$
+        RewriteRule ^(.+)(/)$ /$1 [R=302,L,NC,QSA]
+
+
+ # PAGE  REWRITE RULE:
+	RewriteRule ^pages/(.*)$ /core/page_viewer/viewer.php?path-url=$1&rq=%{REQUEST_URI}&%{QUERY_STRING} [NC,L]
+
+ # IMAGE TRACKING PIXEL REDIRECTION
+        RewriteRule ^trc.png$ /index.php?trackPixel=TRUE&path=%{REQUEST_URI}&lang=$1&%{QUERY_STRING} [NC,L]
+
+
+ # Mobile redirection.
+ #      RewriteCond %{HTTP_USER_AGENT} (iPhone|ipad) [NC]
+ #      RewriteCond %{REQUEST_FILENAME} !-f
+ #      RewriteCond %{REQUEST_URI} !^/mobile/.*$
+ #      RewriteCond %{HTTP_COOKIE} !^.*mobiredir=1.*$
+ #      RewriteRule  .* /mobile/ [R=302,L]
+
+
+ # -----------------------------------
+ # ADMIN dispatcher redirection
+ # -----------------------------------
+        RewriteCond %{REQUEST_FILENAME} -s [OR]
+     	RewriteCond %{REQUEST_FILENAME} -l [OR]
+     	RewriteCond %{REQUEST_FILENAME} -d
+        RewriteRule ^.*$ - [NC,L]
+
+         # Remove images from the test....
+         RewriteCond %{REQUEST_URI} !^.*(\.gif|\.png|\.jpeg|\.jpg|\.css|\.js|\.ico|/404\.php)$
+         RewriteCond %{REQUEST_FILENAME} !^.*(\.gif|\.png|\.jpeg|\.jpg|\.css|\.js|\.ico|/404\.php)$
+         RewriteRule  ^(sp|fr|en)?(/)?admin(/)?(.*)$ admin/index.php?lang=$1&mvc-path=$4&%{QUERY_STRING} [NC,L]
+
+ # -----------------------------------
+ # Main request dispatcher redirection
+ # -----------------------------------
+     RewriteCond %{REQUEST_FILENAME} -s [OR]
+     RewriteCond %{REQUEST_FILENAME} -l [OR]
+     RewriteCond %{REQUEST_FILENAME} -d
+     RewriteCond %{REQUEST_FILENAME} !^.*(\.gif|\.png|\.jpeg|\.jpg|\.css|\.js|\.ico|/404\.php)$
+	 RewriteRule ^.*$ - [NC,L]
+
+	 RewriteCond %{REQUEST_URI} !^.*(\.gif|\.png|\.jpg|\.jpeg|\.css|\.js|\.ico|/404\.php)$
+	 RewriteCond %{REQUEST_FILENAME} !^.*(\.gif|\.png|\.jpg|\.jpeg|\.css|\.js|\.ico|/404\.php)$
+	 RewriteRule  ^(sp|fr|en)?(.*)$ /index.php?path=$2&lang=$1&%{QUERY_STRING} [NC,L]
+	 # Removed REQUEST_URI and REQUEST_FILENAME due to HUGE security risks
+	 # RewriteRule  ^(sp|fr|en)?(.*)$ /index.php?path=$2&lang=$1&%{QUERY_STRING}&fileName=%{REQUEST_FILENAME}&rq=%{REQUEST_URI} [NC,L]
+
+# DEFAULT LANGUAGE REWRITE RULE
+#      RewriteCond %{SCRIPT_FILENAME} !-d
+#      RewriteRule  ^(sp|fr|en)([/])?(.*) ?path=%{REQUEST_URI}&lang=$1&%{QUERY_STRING} [NC,L]
+
+ #----------------------------------------
+ # HACK PROOFING.
+ #----------------------------------------
+
+ # proc/self/environ? no way!
+         RewriteCond %{QUERY_STRING} proc/self/environ [OR]
+
+ # Block out any script trying to set a mosConfig value through the URL
+         RewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
+
+ # Block out any script trying to base64_encode crap to send via URL
+         RewriteCond %{QUERY_STRING} base64_encode.*(.*) [OR]
+
+ # Block out any script that includes a <script> tag in URL
+         RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
+
+ # Block out any script trying to set a PHP GLOBALS variable via URL
+         RewriteCond %{QUERY_STRING} GLOBALS(=|[|\%[0-9A-Z]{0,2}) [OR]
+
+ # Block out any script trying to modify a _REQUEST variable via URL
+         RewriteCond %{QUERY_STRING} _REQUEST(=|[|\%[0-9A-Z]{0,2})
+
+ # Send all blocked request to homepage with 403 Forbidden error!
+         RewriteRule ^(.*)$ index.php [F,L]
+</ifModule>
+
+# FILE COMPRESSION
+# compress text, html, javascript, css, xml:
+        AddOutputFilterByType DEFLATE text/plain
+        AddOutputFilterByType DEFLATE text/html
+        AddOutputFilterByType DEFLATE text/xml
+        AddOutputFilterByType DEFLATE text/css
+        AddOutputFilterByType DEFLATE application/xml
+        AddOutputFilterByType DEFLATE application/xhtml+xml
+        AddOutputFilterByType DEFLATE application/rss+xml
+        AddOutputFilterByType DEFLATE application/javascript
+        AddOutputFilterByType DEFLATE application/x-javascript
+
+# COMPRESSION CACHEING
+#       ExpiresActive on
+#       ExpiresActive on
+#       ExpiresByType image/gif                 "access plus 1 month"
+#       ExpiresByType image/png                 "access plus 1 month"
+#       ExpiresByType image/jpg                 "access plus 1 month"
+#       ExpiresByType image/jpeg                "access plus 1 month"
+#       ExpiresByType video/ogg                 "access plus 1 month"
+#       ExpiresByType audio/ogg                 "access plus 1 month"
+#       ExpiresByType video/mp4                 "access plus 1 month"
+#       ExpiresByType video/webm                "access plus 1 month"
+
+# FORCE IE RENDERING MODE
+#       Header set X-UA-Compatible "IE=Edge"
+        # Remove rendering for non-endpoint files
+        <FilesMatch "\.(js|css|gif|png|jpe?g|pdf|xml|oga|ogg|m4a|ogv|mp4|m4v|webm|svg|svgz|eot|ttf|otf|woff|ico|webp|appcache|manifest|htc|crx|xpi|safariextz|vcf)$" >
+#               Header unset X-UA-Compatible
+        </FilesMatch>
+

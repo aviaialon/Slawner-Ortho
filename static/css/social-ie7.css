@@ -1,0 +1,20 @@
+.supersocialshare.bubble .sb_network_button.facebook {
+    background-image:url(/static/images/socials/ie/bubble_facebook_share_button.png) !important;
+}
+.supersocialshare.bubble .sb_network_button.linkedin {
+    background-image:url(/static/images/socials/ie/bubble_linkedin_share_button.png) !important;
+}
+.supersocialshare.bubble .sb_network_button.google {
+    background-image:url(/static/images/socials/ie/bubble_googleplus_share_button.png) !important;
+}
+.supersocialshare.bubble .sb_network_button.twitter {
+    background-image:url(/static/images/socials/ie/bubble_twitter_share_button.png) !important;
+}
+.supersocialshare.bubble .sb_network_button.pinterest {
+    background-image:url(/static/images/socials/ie/bubble_pinterest_share_button.png) !important;
+}
+.supersocialshare.bubble .sb_main {
+    background:url(/static/images/socials/bubble_share_core.png) no-repeat !important;
+}
+
+#jf-preloader {display: none !important; display: none;}

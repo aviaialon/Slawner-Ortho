@@ -1,0 +1,222 @@
+<?php
+class MEMCACHE_MANAGER_CONTROLLER extends ADMIN_APPLICATION implements IMODULE_BASE
+{
+	/**
+	 * Module index action
+	 * 
+	 * @access	protected, final
+	 * @param 	array $arrRequestParams
+	 * @return 	void
+	 */
+	protected final function indexAction(array $arrRequestParams)
+	{	
+		/**
+		 * Set the memcache stats (all slabs, all active servers)
+		 * @var array
+		 */
+		$this->setMemcacheStats(
+			array_shift(array_values($this->getMemcache()->statistics()))
+		);
+		
+		/**
+		 * Save memcache Slab data
+		 * @var array
+		 */
+		$this->setMemcacheKeyData(
+			$this->getMemcache()->getDataSlab()
+		);
+		
+		/**
+		 * Set the current allowed memcache key prefix for key filtering
+		 * @var string
+		 */
+		$strDefaultKey = trim(preg_replace('/[^A-Za-z0-9-_]/','', str_replace(array(" ", "-", "."), "_", strtoupper(constant('__SESSION_NAME__')))));
+		if (
+			(true === defined('__MEMCACHE_UNIQUE_KEYS__')) &&
+			(true === defined('__SESSION_NAME__')) &&
+			(true === constant('__MEMCACHE_UNIQUE_KEYS__'))
+		) {
+			/**
+			 * Here, we use the __SESSION_NAME__ constant because its already sanitised from the un-usable characters.
+			 */
+			$strDefaultKey =  substr(constant('__SESSION_NAME__'), 0, strlen(constant('__SESSION_NAME__')) - 5) . '::';
+		}
+		$this->setSiteMemcachePrefixKey(
+			($this->getSite() ? $this->getSite()->getMemcachePrefixKey() : $strDefaultKey)
+		);
+	}
+	
+	/**
+	 * Module Key Show action
+	 * 
+	 * @access	protected, final
+	 * @param 	array $arrRequestParams
+	 * @return 	void
+	 */
+	protected final function Memcache_keyAction(array $arrRequestParams)
+	{
+		if (
+			(FALSE === empty($arrRequestParams)) &&
+			(FALSE === empty($arrRequestParams[0])) 
+		) {
+			// Set the data
+			$this->getMemcache()->setKeyPrefix('');
+			$this->setMemcacheValue($this->getMemcache()->get(base64_decode(urldecode($arrRequestParams[0]))));
+			$this->setRequestedMemcacheKey(base64_decode(urldecode($arrRequestParams[0])));
+			// Render the view since its called via ajax so the application 
+			// does not call the renderView method.
+			$this->renderOutput(array(
+				'Request_Data' 	=> $this->getRequestData(),
+				'View_Data'		=> $this->getViewData()
+			)); 
+		}
+	}
+	
+	/**
+	 * Module Key Delete action
+	 * 
+	 * @access	protected, final
+	 * @param 	array $arrRequestParams
+	 * @return 	void
+	 */
+	protected final function Key_deleteAction(array $arrRequestParams)
+	{
+		if (
+			(FALSE === empty($arrRequestParams)) &&
+			(FALSE === empty($arrRequestParams[0])) 
+		) {
+			// Set the data
+			$this->getMemcache()->setKeyPrefix('');
+			$this->getMemcache()->delete(base64_decode($arrRequestParams[0]));
+			header('Content-type: application/json');
+			echo json_encode(array(
+				'success' => true
+			)); 
+		}
+	}
+	
+	/**
+	 * Flush server action
+	 * 
+	 * @access	protected, final
+	 * @param 	array $arrRequestParams
+	 * @return 	void
+	 */
+	protected final function Server_FlushAction(array $arrRequestParams)
+	{
+		// Please be careful with this feature...
+		$blnSuccess = true;
+		try {  
+			// Default server flush..
+			$this->getMemcache()->flush();
+			
+			// Flush site specific keys
+			$arrSiteCacheKeys = $this->getMemcache()->getDataSlab();
+			if (false === empty($arrSiteCacheKeys))	
+			{
+				while (list($strMemcacheSiteKey, $arrMemcacheData) = each($arrSiteCacheKeys))	
+				{
+					$this->getMemcache()->delete($strMemcacheSiteKey, 0, false);	
+				}
+				
+				$this->getMemcache()->resetKeyVersionNumber();
+			}
+		}
+		catch (Exception $e) { 
+			$blnSuccess = false; 
+		}
+		header('Content-type: application/json');
+		echo json_encode(array(
+			'success' => $blnSuccess
+		)); 
+	}
+	
+	
+	/**
+	 * Abstraction method: This method sets the config read from the config.ini file
+	 * 
+	 * @access	public, static
+	 * @param 	array $arrConfig
+	 * @return 	void
+	 */
+	public static function setIniConfig(array $arrConfig)
+	{
+		
+	}
+	
+	/**
+	 * Abstraction method, this method returns the module's display name
+	 * 
+	 * @access	public, static
+	 * @return string
+	 */
+	public static function getDisplayName()
+	{
+		return ("Memcache Manager");
+	}
+	
+	/**
+	 * Abstraction method, this method returns the module's sub menus
+	 * 
+	 * (non-PHPdoc)
+	 * @see IMODULE_BASE::getSubMenuActions()
+	 * @access	public, static
+	 * @return 	array
+	 */
+	public static function getSubMenuActions()
+	{
+		return array(
+			// Memcache Stats
+			array(
+				'name' 	=> 	'Memcache Stats',
+				'url'	=>	'#stats'
+			),
+			array(
+				'name' 	=> 	'Flush Memcache Server',
+				'url'	=>	'#flush'
+			),
+			array(
+				'name' 	=> 	'Memcache Life Stats',
+				'url'	=>	'#life-stats'
+			),
+			array(
+				'name' 	=> 	'Memcache Data',
+				'url'	=>	'#data'
+			)
+		);
+	}
+	
+	/**
+	 * Abstraction method, this method returns the module's output
+	 * 
+	 * (non-PHPdoc)
+	 * @see IMODULE_BASE::renderOutput()
+	 * @access	public
+	 * @return 	void
+	 */
+		
+	public function renderOutput(array $arrRequestParams)
+	{
+		$strViewFile = 'views/default.php';
+		if (false === $this->getMemcache()->isServerOnline())
+		{
+			$strViewFile = 'views/offline.php';
+		}
+		else
+		{
+			switch ($this->getRequest_Action())
+			{
+				case 'memcache-key' : 
+				{
+					$strViewFile = 'views/memcache-key.php';
+					break;
+				}
+				case ADMIN_APPLICATION::ADMIN_APPLICATION_DEFAULT_ACTION : 
+				{
+					break;
+				}
+			}	
+		}
+		require_once($strViewFile);
+	}
+}

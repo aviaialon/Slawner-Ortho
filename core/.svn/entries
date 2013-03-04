@@ -1,0 +1,248 @@
+10
+
+dir
+138
+svn+ssh://avi@192.168.2.21/var/www/svn-repositories/platform/platform/trunk/core
+svn+ssh://avi@192.168.2.21/var/www/svn-repositories/platform
+
+
+
+2012-12-06T19:44:08.993913Z
+138
+avi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1d002b39-cfa2-4865-9edd-a1a93c63ba5f
+
+http
+dir
+
+oauth
+dir
+
+hybernate
+dir
+
+change-log.txt
+file
+
+
+
+
+2012-05-04T16:22:29.511371Z
+d6f4c460637b29d8c833d7960b442e25
+2012-05-04T15:37:16.713308Z
+1
+avi
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+5970
+
+components
+dir
+
+debug
+dir
+
+application.php
+file
+
+
+
+
+2012-06-23T14:55:38.559115Z
+d50228ca5e45901b8ca3346b910d8047
+2012-06-23T14:59:02.882924Z
+80
+avi
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+16866
+
+validation
+dir
+
+translate
+dir
+
+page_viewer
+dir
+
+exception
+dir
+
+utility-functions.php
+file
+
+
+
+
+2012-08-12T02:10:25.948478Z
+1537f45842c87f704dcbd3ac2a7d7a7a
+2012-08-12T02:18:03.628549Z
+93
+avi
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+10059
+
+url
+dir
+
+memcache
+dir
+
+database
+dir
+
+content
+dir
+
+mail
+dir
+
+external
+dir
+
+session
+dir
+
+formHandler.php
+file
+
+
+
+
+2012-10-08T22:39:07.783581Z
+33b2d882bf278a0fd64f717e385a18a8
+2012-10-08T22:40:03.212804Z
+136
+avi
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+10846
+
+http-errors
+dir
+
+parser
+dir
+
+interface
+dir
+
+xml
+dir
+
+cron
+dir
+
+crypt
+dir
+
+backup
+dir
+
+config
+dir
+
+io
+dir
+
+qrcode
+dir
+
+payment
+dir
+
+util
+dir
+

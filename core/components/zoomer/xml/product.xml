@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gallery>
+	<settings 
+	
+		map_path="images/product.jpg"
+		 
+		canvas_width="500" 
+		canvas_height="300"
+		 
+		zoom_init="50" 
+		zoom_min="50" 
+		zoom_max="200" 
+		zoom_speed="2" 
+
+		drag_outside_boundaries="false"		
+		
+		panel_x="380" 
+		panel_y="140" 
+		panel_bg_color_out="0xFF2291" 
+		panel_bg_alpha_out="50" 
+		panel_bg_color_over="0xFF2291" 
+		panel_bg_alpha_over="80" 
+		
+		button_bg_color_out="0xFFFFFF" 
+		button_bg_alpha_out="60" 
+		button_bg_color_over="0xFFFFFF" 
+		button_bg_alpha_over="90" 
+		button_symbol_color_out="0x000000" 
+		button_symbol_color_over="0x000000" 
+
+		tooltip_bg_color="0xffffff" 
+		tooltip_max_width="200" 
+		
+	/>
+	<items>
+		<!-- Duplicate the following line to add a new item -->
+		<!-- item_x is the horizontal position of the item on the map when the map is in its real size (100%) -->
+		<!-- item_y is the vertical position of the item on the map when the map is in its real size (100%) -->
+		<!-- Both are updated automatically according to the zoom ratio -->
+		<!-- item_icon is the path to the image of the item (jpg, gif, png or swf file) -->
+		<!-- <![CDATA[ description here ]]> is the description of the item who appears in the tooltip (you can put basic HTML tags) -->
+		<item item_x="250" item_y="480" item_icon="images/marker_circle.swf">
+			<![CDATA[<font color='#000000' size='12' face='Arial'><b>&nbsp;&nbsp;Product detail</b></font><br><font color='#000000' size='10' face='Arial'><img src='images/product_detail.jpg' width='80' height='80'><br>Insert HTML description on a specific part of your product.</font><font color='#FF6600' size='10' face='Arial'><br><a href='http://activeden.net'><b><u>&gt;&gt; link</u></b></a></font></font>]]>
+		</item>
+		<item item_x="480" item_y="160" item_icon="images/marker_circle.swf">
+			<![CDATA[<font color='#000000' size='10' face='Arial'><b>Press me to zoom in</b></font>]]>
+		</item>
+		<item item_x="180" item_y="190" item_icon="images/marker_circle.swf">
+			<![CDATA[<font color='#000000' size='10' face='Arial'><b>Press me to zoom in</b></font>]]>
+		</item>
+		<item item_x="380" item_y="290" item_icon="images/marker_circle.swf">
+			<![CDATA[<font color='#000000' size='10' face='Arial'><b>Press me to zoom in</b></font>]]>
+		</item>
+		<item item_x="620" item_y="470" item_icon="images/marker_circle.swf">
+			<![CDATA[<font color='#000000' size='10' face='Arial'><a href='http://activeden.net'><b><u>www.yourlink.com</u></b></a></font>]]>
+		</item>
+	</items>
+</gallery>

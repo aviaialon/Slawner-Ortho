@@ -1,0 +1,169 @@
+<?php
+	/**
+	 * SITE_USERS_IMAGE Administration Class
+	 * This class represents the CRUD [Hybernate] behaviors implemented 
+	 * with the Hybernate framework 
+	 *
+	 * @package		CLASSES::HYBERNATE::OBJECTS::IMAGES
+	 * @subpackage	none
+	 * @author      Avi Aialon <aviaialon@gmail.com>
+	 * @copyright	2010 Deviant Logic. All Rights Reserved
+	 * @license		http://www.deviantlogic.ca/license
+	 * @version		SVN: $Id$
+	 * @link		SVN: $HeadURL$
+	 * @since		12:35:53 PM
+	 *
+	 */	
+	 SHARED_OBJECT::getObjectFromPackage(__APPLICATION_CLASS_PATH__ . "::HYBERNATE::OBJECTS::SITE_USERS");
+	 SHARED_OBJECT::getObjectFromPackage(__APPLICATION_CLASS_PATH__ . "::HYBERNATE::OBJECTS::IMAGE::SITE_IMAGE_POSITION");	
+	 SHARED_OBJECT::getObjectFromPackage(__APPLICATION_CLASS_PATH__ . "::IO::IMAGE::IMAGE");
+	 SHARED_OBJECT::getObjectFromPackage(__APPLICATION_CLASS_PATH__ . "::IO::FILE::FILE_UPLOAD");
+	 SHARED_OBJECT::getObjectFromPackage(__APPLICATION_CLASS_PATH__ . "::HYBERNATE::OBJECTS::ACTIVE_STATUS");
+	 SHARED_OBJECT::getObjectFromPackage(__APPLICATION_CLASS_PATH__ . "::UTILITY-FUNCTIONS");
+	 
+	 class SITE_USERS_IMAGE extends SHARED_OBJECT {
+		
+		protected static $_ERROR = false;
+		
+		public 	function __construct() {  } 
+		
+		/**
+		 * This method uploads a image from a form post and creates the image positions
+		 * @param : none
+		 * @return: boolean - Execution results.
+		 */
+		public static final function uploadAndCreateNewProfileImage()
+		{
+			$Application 	= APPLICATION::getInstance();
+			$objUser		= $Application->getUser();
+			$blnRetutn		= false;
+			
+			if ((bool) $objUser->getId())
+			{
+				// Upload the new file.
+				$objUploader = new FILE_UPLOAD();
+				$objUploader->setFileSavePath(__DEV_NULL_PATH__); 
+				$objUploader->setFormFieldName('file');
+				$objUploader->setMaxFileSize(900);
+				$objUploader->setAllowedExtensions(array(
+					'gif', 'png', 'jpg', 'jpeg'
+				));
+				
+				$objUploader->upload();
+				self::setError($objUploader->getErrors());
+				
+				if(
+					$objUploader->hasFileToUpload() &&
+					$objUploader->isUploadSuccess() &&
+					FALSE == ((bool) self::getError())
+				) {
+					// The new uploaded file name
+					$strImgFileName = 	__DEV_NULL_PATH__ . DIRECTORY_SEPARATOR . $objUploader->getNewFileName();
+					// The temp file name
+					$strTmpFileName	= 	__DEV_NULL_PATH__ . DIRECTORY_SEPARATOR . md5($objUploader->getNewFileName()) . 
+										'.' .$objUploader->getFileExtension();
+
+					// Save the original image 
+					$objImage = IMAGE::getInstance();
+					$objImage->setImageSourcePath($strImgFileName);
+					
+					$objParentImage = SITE_USERS_IMAGE::newInstance();
+					$objParentImage->setVariable('site_user_id', (int) $objUser->getId());
+					$objParentImage->setVariable('image_position_id', 0);
+					$objParentImage->setVariable('image_ext', $objImage->getImageExtension());
+					$objParentImage->setVariable('image_base64_data', $objImage->base64EncodeImage(false));
+					$objParentImage->setVariable('creation_date', now());
+					$objParentImage->setVariable('active_status_id', ACTIVE_STATUS_ENABLED);
+					$objParentImage->save();
+					
+					// We first have to disable all other images of the same position
+					// For the same user.
+					$Application->getDatabase()->query(
+						" UPDATE site_users_image SET active_status_id = " . ACTIVE_STATUS_DISABLED . 
+						" WHERE site_user_id = " . (int) $objUser->getId() . 
+						" AND active_status_id = " . ACTIVE_STATUS_ENABLED .
+						" AND id != " . (int) $objParentImage->getId()
+					);
+					
+					// Create the image positions
+					$arrImagePositions = SITE_IMAGE_POSITION::getObjectClassView(array(
+						'columns' 	 => 'a.id, a.width, a.height',
+						'filter'	 => array(
+							'a.active' => ACTIVE_STATUS_ENABLED
+						)
+					));
+					
+					// Next we create all the image positions
+					foreach ($arrImagePositions as $intIndex => $arrImagePos)
+					{
+						// Create a new image instance:
+						$objImage = IMAGE::getInstance();
+						$objImage->setImageSourcePath($strImgFileName);
+						$objImage->setImageOutputPath($strTmpFileName);
+						$objImage->setQuality(80);
+						$objImage->resize(
+							(int) $arrImagePos['width'],
+							(int) $arrImagePos['height'],
+							IMAGE::RESIZE_TYPE_BOX 
+						);
+						
+						// Then, we replace the image with a new instance.
+						$objTmpImage = SITE_USERS_IMAGE::newInstance();
+						$objTmpImage->setVariable('parentImageId', $objParentImage->getId());
+						$objTmpImage->setVariable('site_user_id', (int) $objUser->getId());
+						$objTmpImage->setVariable('image_position_id', (int) $arrImagePos['id']);
+						$objTmpImage->setVariable('image_ext', $objImage->getImageExtension());
+						$objTmpImage->setVariable('image_base64_data', $objImage->base64EncodeImage(false));
+						$objTmpImage->setVariable('creation_date', now());
+						$objTmpImage->setVariable('active_status_id', ACTIVE_STATUS_ENABLED);
+						$objTmpImage->save();
+					}
+					
+					// Kill the uploaded image:
+					@unlink($strImgFileName);
+					@unlink($strTmpFileName);
+					$blnRetutn = true;
+				}	
+			}
+			
+			return ($blnRetutn);
+		}
+		
+		public function getBase64DisplayData()
+		{
+			$strReturn = false;
+			
+			if (
+				($this->getVariable('image_base64_data')) &&
+				($this->getVariable('image_ext'))
+			)  {
+				$strReturn = 'data:image/' . $this->getVariable('image_ext') . ';base64,' . $this->getVariable('image_base64_data');	
+			}
+			else if (
+				($this->getVariable('image_path')) &&
+				(file_exists($this->getVariable('image_path')))
+			) {
+				$strImageBinay 	= fread(fopen($this->getVariable('image_path'), "r"), filesize($this->getVariable('image_path')));
+       			$strReturn 		= 'data:image/' . 
+								  ($this->getVariable('image_ext') ? $this->getVariable('image_ext') : pathinfo($this->getVariable('image_path'), PATHINFO_EXTENSION)) . 
+								  ';base64,' . base64_encode($strImageBinay);
+			}
+			
+			return ($strReturn);
+		}
+		
+		public static final function getError()
+		{
+			return (self::$_ERROR);
+		}
+		
+		private static final function setError($strError = NULL)
+		{
+			self::$_ERROR = $strError;
+		}
+		/**
+			Abstraction Methods
+		**/
+		protected function getClassPath()  	 { return (__FILE__); }
+	}
+?>

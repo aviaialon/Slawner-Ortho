@@ -1,0 +1,178 @@
+<style type="text/css">
+	@import url('http://ubuntu.dns04.com/pagination-css-2/brajeshwar-paginate-4f59202/paginate.css');
+</style>
+
+<?php 
+$objPagination = UTIL_PAGINATION::getInstance();
+$objPagination->setItemsPerPage(10);
+$objPagination->paginateFromClassObjectView('PAGE_VIEWS', array(
+    'limit' => 800,
+    'orderBy' => 'a.id',
+    'direction'	=> 'ASC'
+));
+echo ('<div class="paginate paginate-dark wrapper">');
+	echo ($objPagination->getPagination());
+echo ('</div>');
+
+new dump($objPagination->getPageData());
+
+new dump($objPagination->getPaginationLinks());
+
+echo ('<div class="paginate paginate-dark wrapper">');
+	echo ($objPagination->getPagination());
+echo ('</div>');
+
+/*
+$objDb = DATABASE::getInstance();
+$objPagination = UTIL_PAGINATION::getInstance();
+$objPagination->setItemsTotal(250);
+$objPagination->setPaginationVariables();
+
+//$arrResults = $objDb->query("SELECT * FROM page_views LIMIT " . $objPagination->limit);
+//new dump($arrResults);
+echo '<br />BLAH BLAH BLA <br />';
+new dump ($objPagination->getVariable());
+echo '<br />BLAH BLAH BLA <br />';
+echo ($objPagination->getPagination());
+*/
+
+
+
+die;
+
+
+/* -------------------------------------------------------------------------------------------------------------------- */
+
+require_once('paypal_ipn.php');
+// /core/payment/paypal_api/ipn/form.html
+$ojbPayPalIpnTransaction = PAYPAL_IPN::getInstance();
+$ojbPayPalIpnTransaction->setEnvironment(PAYPAL_IPN::PAYPAL_IPN_CONFIG_TYPE_SANDBOX);
+$ojbPayPalIpnTransaction->setQuantity(2);
+$ojbPayPalIpnTransaction->setAmount(9.99);
+$ojbPayPalIpnTransaction->setShipping(2.99);
+$ojbPayPalIpnTransaction->setHandling(1.99);
+$ojbPayPalIpnTransaction->setTax(4.99);
+$ojbPayPalIpnTransaction->setItem_Name('payment Test');
+$ojbPayPalIpnTransaction->setItem_Number(16571654);
+$ojbPayPalIpnTransaction->setCn('Thank you for buying ' . __SITE_NAME__);
+$ojbPayPalIpnTransaction->setNo_Note(0);
+$ojbPayPalIpnTransaction->setCustom(session_id());
+
+if (FALSE === $ojbPayPalIpnTransaction->executeTransaction())
+{
+	echo ('<h1>ERROR: </h1>');
+	echo (implode('<br />', $ojbPayPalIpnTransaction->getErrors()));
+}
+/*
+	 	
+		
+		
+							
+		
+		cs					Sets the background color of your payment pages. If set to "1," the background color will be black. 
+							This is optional; if omitted or set to "0," the background color will be white
+		
+		-----------------------------------------------------------
+		- Extended Variables:	if cmd is set to _xclick -	(default)
+		-----------------------------------------------------------
+								
+		email				Customer's email address
+		
+		first_name			Customer's first name. Must be alpha-numeric, with a 32 character limit
+		
+		last_name			Customer's last name. Must be alpha-numeric, with a 64 character limit
+		
+		address1			First line of customer's address. Must be alpha-numeric, with a 100 character limit
+		
+		address2			Second line of customer's address. Must be alpha-numeric, with a 100 character limit
+		
+		city				City of customer's address. Must be alpha-numeric, with a 100 character limit
+		
+		state				State of customer's address. Must be official 2 letter abbreviation
+		
+		zip					Zip code of customer's address
+		
+		night_phone_a		Area code of customer's night telephone number
+		
+		night_phone_b		First three digits of customer's night telephone number
+		
+		day_phone_a			Area code of customer's daytime telephone number
+		
+		day_phone_b			First three digits of customer's daytime telephone number	
+
+*/
+
+
+
+die;
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Test form Paypal</title> 
+</head>
+
+<body onload="">
+<h2>Processing Transaction...</h2>
+<p><strong>Please wait... please don't close this window.</strong></p>
+<form method="post" name="paypal_form" action="https://www.sandbox.paypal.com/cgi-bin/webscr" dir="ltr" lang="en-US">
+	<input type="submit" />
+    <input type="hidden" name="business" value="danger_1332857874_biz@yahoo.com" />
+    <input type="hidden" name="cmd" value="_xclick" />
+	
+    <!-- the next three need to be created -->
+    <input type="hidden" name="image_url" value="https://secure.hostmonster.com/~regentva/index_files/images/paypal-header.jpg" />
+    <input type="hidden" name="return" value="http://momtrade.dns05.com/core/payment/paypal_api/ipn/success.php" />
+    <input type="hidden" name="cancel_return" value="http://momtrade.dns05.com/core/payment/paypal_api/ipn/cancelled.php" />
+    <input type="hidden" name="notify_url" value="http://momtrade.dns05.com/core/payment/paypal_api/ipn/ipn.php" />
+    <input type="hidden" name="rm" value="2" />
+    <input type="hidden" name="currency_code" value="USD" />
+    <input type="hidden" name="lc" value="US" />
+    <input type="hidden" name="bn" value="toolkit-php" />
+    <input type="hidden" name="cbt" value="Continue" />
+    
+    <!-- Payment Page Information -->
+    <input type="hidden" name="no_shipping" value="" />
+    <input type="hidden" name="no_note" value="1" />
+    <input type="hidden" name="cn" value="Comments" />
+    <input type="hidden" name="cs" value="" />
+    
+    <!-- Product Information -->
+    <input type="hidden" name="item_name" value="Your order at domain.com" />
+    <input type="hidden" name="amount" value="98.75" />
+    <input type="hidden" name="quantity" value="1" />
+    <input type="hidden" name="item_number" value="<?php echo mt_rand() * 100000; ?>" />
+    <input type="hidden" name="undefined_quantity" value="" />
+    <input type="hidden" name="on0" value="Order ID" />
+    <input type="hidden" name="os0" value="12345-345" />
+    <input type="hidden" name="on1" value="Test Data" />
+    <input type="hidden" name="os1" value="This is the tets data value" />
+    
+    <!-- Shipping and Misc Information -->
+    <input type="hidden" name="shipping" value="10" />
+    <input type="hidden" name="shipping2" value="" />
+    <input type="hidden" name="handling" value="" />
+    <input type="hidden" name="tax" value="" />
+    <input type="hidden" name="custom" value="" />
+    <input type="hidden" name="invoice" value="" />
+    
+    <!-- Customer Information -->
+    <input type="hidden" name="first_name" value="Mr. X" />
+    <input type="hidden" name="last_name" value="" />
+    <input type="hidden" name="address1" value="Street no. 1" />
+    <input type="hidden" name="address2" value="" />
+    <input type="hidden" name="city" value="MyTown" />
+    <input type="hidden" name="state" value="" />
+    <input type="hidden" name="zip" value="10004" />
+    <input type="hidden" name="email" value="ship@to-me.com" />
+    <input type="hidden" name="night_phone_a" value="" />
+    <input type="hidden" name="night_phone_b" value="" />
+    <input type="hidden" name="night_phone_c" value="" />
+
+<noscript><p>Your browser doesn't support Javscript, click the button below to process the transaction.</p>
+<input type="submit" name="Submit" value="Process Payment" />
+</noscript>
+</form>
+</body>
+</html>

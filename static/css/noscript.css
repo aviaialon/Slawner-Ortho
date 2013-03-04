@@ -1,0 +1,54 @@
+/***** No Script Stylesheet *****/
+#mainmenu li:hover ul{
+display:block;		
+}
+
+#slideshow-noscript {
+width:100%;
+height:500px;
+text-align:center;
+background:url(/static/images/slideshow/bg_metro_blue.jpg) no-repeat;
+display:block;
+}
+
+#slideshow-noscript h4 {
+width:650px;
+color:#fff;
+margin:0 auto;
+padding-top:220px;
+text-align:center;
+text-transform:uppercase;
+}
+
+#twitter-box {
+display:none;
+}
+
+#twitter-noscript {
+width:100%;
+margin:5px auto 0;
+display:block;	
+}
+
+#twitter-noscript p{
+width:100%;
+font-family:'Lato',Arial,Tahoma,Verdana;
+font-weight:300;
+font-size:20px;
+color:#a2a2a2;
+line-height:32px;
+padding:10px 0px 5px 20px;
+text-align:center;
+}
+
+#map_canvas {
+width:100%;	
+height:440px;
+background-image:url(/static/images/sample_images/noscript_map.jpg);
+background-repeat:no-repeat;
+display:block;
+}
+
+.tab_container > div:last-child, .tab_container > div:first-child {
+display:none;
+}

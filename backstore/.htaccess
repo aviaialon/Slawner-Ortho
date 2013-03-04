@@ -1,0 +1,40 @@
+# INI SET
+	php_value register_globals on
+	php_value auto_prepend_file /var/www/slawner.dns04.com/backstore/config/config.php	
+	php_flag output_buffering on
+
+#----------------------
+# REWITE ENGINE
+#----------------------
+
+RewriteEngine On
+RewriteBase /
+
+
+
+<IfModule mod_rewrite.c>
+# Remove trailing slash
+# e.g. example.com/foo/ will redirect to example.com/foo
+        RewriteCond %{REQUEST_FILENAME} -f [OR]
+        RewriteCond %{REQUEST_FILENAME} -d
+        RewriteRule .* - [L]
+        RewriteRule ^(.+)(/)$ /$1 [R=302,L,NC,QSA]
+
+# REMOVE THE DIRECTORY INDEX PAGE FROM THE URL (index.php, index.htm, index.html, default.php, default.htm, default.php)
+        RewriteRule ^/backstore/index.php?$1 [L,QSA]
+        RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s(.*)/index\.php [NC]
+        RewriteRule ^ %1 [R=301,L]
+ # -----------------------------------
+ # Main request dispatcher redirection
+ # -----------------------------------
+     RewriteCond %{REQUEST_FILENAME} -s [OR]
+     RewriteCond %{REQUEST_FILENAME} -l [OR]
+     RewriteCond %{REQUEST_FILENAME} -d
+     RewriteCond %{REQUEST_URI} !^.*(\.gif|\.png|\.jpeg|\.jpg|\.css|\.js|\.ico|/404\.php)$
+     RewriteCond %{REQUEST_FILENAME} !^.*(\.gif|\.png|\.jpeg|\.jpg|\.css|\.js|\.ico|/404\.php)$
+     RewriteRule ^.*$ - [NC,L]
+
+     RewriteCond %{REQUEST_URI} !^.*(\.gif|\.png|\.jpg|\.jpeg|\.css|\.js|\.ico|/404\.php)$
+     RewriteCond %{REQUEST_FILENAME} !^.*(\.gif|\.png|\.jpg|\.jpeg|\.css|\.js|\.ico|/404\.php)$
+     RewriteRule  ^(\/?sp|\/?fr|\/?en)?(.*)$ /backstore/index.php?path=$2&lang=$1&%{QUERY_STRING} [NC,L]
+</IfModule>
